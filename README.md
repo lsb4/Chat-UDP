@@ -1,6 +1,7 @@
 Implementação do projeto da disciplina IF678 (Infra-Comunicações)
 
-------INTEGRANTES:
+****INTEGRANTES:****
+
 -Heitor Brayner Prado (hbp)
 -João Pedro Barreto de Oliveira Lima (jpbol)
 -Vinicius Bastos Moreira Principe (vbmp)
