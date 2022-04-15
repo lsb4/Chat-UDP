@@ -66,7 +66,6 @@ elif option == 2:
     while flag == 1:
         clientMessage, source = udpSocketServer.recvfrom(1024) # O 1024 representa o tamanho do buffer
         clientMessage = clientMessage.decode('ASCII') # Faço a conversão de bytes para string de volta
-
         if clientMessage == "SAIR":
             print ("A conexão foi encerrada pelo cliente...")
             flag = 0

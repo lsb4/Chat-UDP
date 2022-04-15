@@ -1,6 +1,11 @@
 import socket
 import os
+import zlib
 from time import sleep
+
+def checksum_calculator(data):
+    checksum = zlib.crc32(data)
+    return checksum
 
 serverIP = "10.0.0.189"
 serverPort = 5001
@@ -24,6 +29,7 @@ if option == 1:
 
     udpSocketClient.connect(destination)
     udpSocketClient.send(f"{fileName}{gap}{fileSize}".encode('utf-8'))
+
 
     with open(fileName, "rb") as file_:
         while True:
@@ -52,7 +58,6 @@ elif option == 2:
 
         # Envio das mensagens do cliente
         clientMessage = input()
-
         if clientMessage == "SAIR":
             flag = 0
 
