@@ -2,10 +2,20 @@ import socket
 import os
 import zlib
 
-def checksum_calculator(data):
-    checksum = zlib.crc32(data)
-    return checksum
+def carry(a, b):
+    c = a + b
+    return (c & 0xffff) + (c >> 16)
 
+def checksum_calc(msg):
+    s = 0
+    if len(msg) % 2 == 0:
+        pass
+    else:
+        msg = msg + 's'
+    for i in range(0, len(msg), 2):
+        w = ord(msg[i]) + (ord(msg[i+1]) << 8)
+        s = carry(s, w)
+    return ~s & 0xffff
 
 serverIP = ''
 serverPort = 5001
