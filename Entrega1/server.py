@@ -76,9 +76,14 @@ elif option == 2:
         clientMessage, source = udpSocketServer.recvfrom(1024) # O 1024 representa o tamanho do buffer
         checksum, source2 = udpSocketServer.recvfrom(1024)
         clientMessage = clientMessage.decode('ASCII') # Faço a conversão de bytes para string de volta
-        compChecksum = checksum_calc(clientMessage)
+        checksum = checksum.decode('ASCII') #Faço a conversão de bytes para string de volta
+        compChecksum = checksum_calc(clientMessage) #Variavel que guarda o checksum para ser comparado com o valor enviado pelo cliente
+        print(compChecksum)
         if compChecksum == checksum:
-            print('ok')
+            print("ok!")
+        else:
+            print("corrupted")
+        
         if clientMessage == "SAIR":
             print ("A conexão foi encerrada pelo cliente...")
             flag = 0
@@ -86,5 +91,6 @@ elif option == 2:
             print (source[0], ":", clientMessage)
             response = "Entendido!"
             udpSocketServer.sendto(bytes(response, "utf8"), source)
+            
             
     udpSocketServer.close()

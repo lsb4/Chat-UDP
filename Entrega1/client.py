@@ -17,7 +17,7 @@ def checksum_calc(msg):
         s = carry(s, w)
     return ~s & 0xffff
 
-serverIP = "192.168.0.106"
+serverIP = "172.17.0.1"
 serverPort = 5001
 
 print("1 - Enviar arquivos para teste")
@@ -69,10 +69,11 @@ elif option == 2:
         # Envio das mensagens do cliente
         clientMessage = input()
         checksum = checksum_calc(clientMessage)
+        print(checksum)
         if clientMessage == "SAIR":
             flag = 0
         udpSocketClient.sendto(bytes(clientMessage,"utf8"), destination) # Com a função "bytes", converto a mensagem do cliente de string para bytes para ser enviada pelo "sendTo"
-        udpSocketClient.sendto(bytes(checksum), destination)
+        udpSocketClient.sendto(bytes(str(checksum), "utf8"), destination) #enviando checksum
         # Recebimento das mensagens do servidor
         serverMessage, source = udpSocketClient.recvfrom(1024)
         serverMessage = serverMessage.decode('ASCII')
