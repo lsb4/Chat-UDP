@@ -78,11 +78,10 @@ elif option == 2:
         clientMessage = clientMessage.decode('ASCII') # Faço a conversão de bytes para string de volta
         checksum = checksum.decode('ASCII') #Faço a conversão de bytes para string de volta
         compChecksum = checksum_calc(clientMessage) #Variavel que guarda o checksum para ser comparado com o valor enviado pelo cliente
-        print(compChecksum)
-        if compChecksum == checksum:
-            print("ok!")
-        else:
-            print("corrupted")
+
+        if str(compChecksum) != checksum:
+            print("Corrupted")
+            flag = 0
         
         if clientMessage == "SAIR":
             print ("A conexão foi encerrada pelo cliente...")
