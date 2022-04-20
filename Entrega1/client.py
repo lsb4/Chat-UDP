@@ -1,6 +1,5 @@
 import socket
 import os
-import zlib
 from time import sleep
 
 def carry(a, b):
@@ -17,7 +16,8 @@ def checksum_calc(msg):
         w = ord(msg[i]) + (ord(msg[i+1]) << 8)
         s = carry(s, w)
     return ~s & 0xffff
-serverIP = "10.0.0.189"
+
+serverIP = "192.168.0.106"
 serverPort = 5001
 
 print("1 - Enviar arquivos para teste")
@@ -68,12 +68,11 @@ elif option == 2:
 
         # Envio das mensagens do cliente
         clientMessage = input()
+        checksum = checksum_calc(clientMessage)
         if clientMessage == "SAIR":
-            print("dale")
             flag = 0
-
         udpSocketClient.sendto(bytes(clientMessage,"utf8"), destination) # Com a função "bytes", converto a mensagem do cliente de string para bytes para ser enviada pelo "sendTo"
-
+        udpSocketClient.sendto(bytes(checksum), destination)
         # Recebimento das mensagens do servidor
         serverMessage, source = udpSocketClient.recvfrom(1024)
         serverMessage = serverMessage.decode('ASCII')

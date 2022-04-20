@@ -17,12 +17,11 @@ def checksum_calc(msg):
         s = carry(s, w)
     return ~s & 0xffff
 
+
+
+
 serverIP = ''
 serverPort = 5001
-
-
-#REBASE THIS
-
 
 print("1 - Receber arquivos para teste")
 print("2 - Chat Cliente-Servidor")
@@ -75,7 +74,11 @@ elif option == 2:
 
     while flag == 1:
         clientMessage, source = udpSocketServer.recvfrom(1024) # O 1024 representa o tamanho do buffer
+        checksum, source2 = udpSocketServer.recvfrom(1024)
         clientMessage = clientMessage.decode('ASCII') # Faço a conversão de bytes para string de volta
+        compChecksum = checksum_calc(clientMessage)
+        if compChecksum == checksum:
+            print('ok')
         if clientMessage == "SAIR":
             print ("A conexão foi encerrada pelo cliente...")
             flag = 0
