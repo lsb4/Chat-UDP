@@ -17,20 +17,27 @@ def checksum_calc(msg):
         s = carry(s, w)
     return ~s & 0xffff
 
-
-
+def make_pkt(message, seqNum):
+    checksum = checksum_calc(message)
+    return str({
+        'cksum': checksum,
+        'data': message,
+        'seq': seqNum
+    }).encode()
 
 serverIP = ''
 serverPort = 5001
+
+seqNumber = 0
 
 print("1 - Receber arquivos para teste")
 print("2 - Chat Cliente-Servidor")
 
 option = int(input())
 
-if option == 1:
+gap = "<gap>"
 
-    gap = "<gap>"
+if option == 1:
 
     udpSocketServer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -74,22 +81,56 @@ elif option == 2:
 
     while flag == 1:
         clientMessage, source = udpSocketServer.recvfrom(1024) # O 1024 representa o tamanho do buffer
-        checksum, source2 = udpSocketServer.recvfrom(1024)
-        clientMessage = clientMessage.decode('ASCII') # Faço a conversão de bytes para string de volta
-        checksum = checksum.decode('ASCII') #Faço a conversão de bytes para string de volta
-        compChecksum = checksum_calc(clientMessage) #Variavel que guarda o checksum para ser comparado com o valor enviado pelo cliente
+        clientMessage = clientMessage.decode('utf-8')
 
-        if str(compChecksum) != checksum:
-            print("Corrupted")
-            flag = 0
-        
-        if clientMessage == "SAIR":
+        pktChecksum, pktMessage, pktSeqNumber = clientMessage.split(gap) # Separamos o nome e o tamanho usando a variável 'gap' no split
+
+        if str(checksum_calc(pktMessage)) != pktChecksum:
+            message = bytes('ACK', 'utf8')
+            check = checksum_calc(message)
+            print("Corrupted 1")
+            udpSocketServer.sendto(f"{check}{gap}{message}{gap}{1 - seqNumber}".encode('utf-8'), source)
+
+            retry, aux = udpSocketServer.recvfrom(1024) # O 1024 representa o tamanho do buffer
+            retry = retry.decode('utf-8')
+
+            retryChecksum, retryMessage, retrySeqNumber = retry.split(gap) # Separamos o nome e o tamanho usando a variável 'gap' no split
+
+            if str(checksum_calc(retryMessage)) != retryChecksum:
+                print("Corrupted 2... bye!")
+                udpSocketServer.sendto(f"{check}{gap}{message}{gap}{1 - seqNumber}".encode('utf-8'), source)
+                flag = 0            
+
+        if pktMessage == "SAIR":
             print ("A conexão foi encerrada pelo cliente...")
             flag = 0
         else:
-            print (source[0], ":", clientMessage)
+            message = "ACK"
+            check = checksum_calc(message)
+            udpSocketServer.sendto(f"{check}{gap}{message}{gap}{seqNumber}".encode('utf-8'), source)
+            print (source[0], ":", pktMessage)
+            seqNumber = 1 - seqNumber
+
             response = "Entendido!"
-            udpSocketServer.sendto(bytes(response, "utf8"), source)
+            respCheck = checksum_calc(response)
+            udpSocketServer.sendto(f"{respCheck}{gap}{response}{gap}{seqNumber}".encode('utf-8'), source)
+
+            isACK, source = udpSocketServer.recvfrom(4096) # Recebemos os dados contendo nome e tamanho do arquivo
+            isACK = isACK.decode('utf-8')
+
+            ackChecksum, ackMessage, ackSeqNumber = isACK.split(gap) # Separamos o nome e o tamanho usando a variável 'gap' no split
+
+            if ackChecksum != str(checksum_calc(ackMessage)) or ackSeqNumber != seqNumber:
+                udpSocketServer.sendto(f"{respCheck}{gap}{response}{gap}{seqNumber}".encode('utf-8'), source)
+
+                isACK2, source = udpSocketServer.recvfrom(4096) # Recebemos os dados contendo nome e tamanho do arquivo
+                isACK2 = isACK2.decode('utf-8')
+
+                ack2Checksum, ack2Message, ack2SeqNumber = isACK2.split(gap) # Separamos o nome e o tamanho usando a variável 'gap' no split
+
+                if ack2Checksum != str(checksum_calc(ack2Message)) or ack2SeqNumber != seqNumber:
+                    flag = 0
+
             
             
     udpSocketServer.close()
