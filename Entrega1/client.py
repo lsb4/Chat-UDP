@@ -17,7 +17,7 @@ def checksum_calc(msg):
         s = carry(s, w)
     return ~s & 0xffff
 
-serverIP = "172.17.0.1"
+serverIP = "192.168.0.106"
 serverPort = 5001
 
 print("1 - Enviar arquivos para teste")
@@ -44,12 +44,11 @@ if option == 1:
     with open(fileName, "rb") as file_:
         while True:
             bytesRead = file_.read(4096) # Lê os bytes do arquivo
-        
+
             if not bytesRead: # Se não tem mais bytes, acabou o arquivo, então para de enviar
                 print("File sended!")
                 udpSocketClient.sendall('file_download_exit'.encode('utf-8'))
                 break
-
             udpSocketClient.sendall(bytesRead) # Sendall é uma variação do socket.send(), só que fica enviando até terminar tudo
             sleep(0.001)
 
