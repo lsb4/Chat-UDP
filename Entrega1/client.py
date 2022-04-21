@@ -17,6 +17,11 @@ def checksum_calc(msg):
         s = carry(s, w)
     return ~s & 0xffff
 
+sequential = 0 #numero de sequencia
+state = 0 # Estado inicial (call 0), esperando o recebimento da camada superior
+
+
+
 serverIP = "192.168.0.106"
 serverPort = 5001
 
